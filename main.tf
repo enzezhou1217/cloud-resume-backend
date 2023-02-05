@@ -17,11 +17,10 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+
 provider "aws" {
   region = "us-east-1"
 }
-
-
 
 //*******************************************************************************
 //API GATEWAY & LAMBDA 
@@ -31,7 +30,7 @@ resource "aws_apigatewayv2_api" "api-to-invoke-lambda" {
   protocol_type = "HTTP"
 }
 resource "aws_lambda_permission" "lambda_permission" {
-  statement_id  = "AllowMyAPIInvoke"
+  statement_id  = "AllowAPIToInvokeLambda"
   action        = "lambda:InvokeFunction"
   function_name = "cloud-resume-lambda"
   principal     = "apigateway.amazonaws.com"
@@ -75,7 +74,7 @@ resource "aws_iam_role_policy" "dynamodb-lambda-policy" {
         {
            "Effect" : "Allow",
            "Action" : ["dynamodb:*"],
-           "Resource" : "${aws_dynamodb_table.cloud-resume-dynamodb-table.arn}"
+           "Resource" : "${aws_dynamodb_table.cloud-resume-table.arn}"
         }
       ]
    })
@@ -286,8 +285,8 @@ resource "aws_route53_record" "ipv4" {
 //*******************************************************************************
 //DynamoDB
 #dynamodb table and item initialization
-resource "aws_dynamodb_table" "cloud-resume-dynamodb-table" {
-  name         = "cloud-resume-dynamodb-table"
+resource "aws_dynamodb_table" "cloud-resume-table" {
+  name         = "cloud-resume-table"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "DomainName"
   range_key    = "ID"
@@ -303,15 +302,14 @@ resource "aws_dynamodb_table" "cloud-resume-dynamodb-table" {
 }
 
 resource "aws_dynamodb_table_item" "cloud-resume" {
-  table_name = "cloud-resume-dynamodb-table"
-  hash_key   = "DomainName"
-  range_key    = "ID"
+  table_name = "cloud-resume-table"
+  hash_key   = "${aws_dynamodb_table.cloud-resume-table.hash_key}"
+  range_key    = "${aws_dynamodb_table.cloud-resume-table.range_key}"
 
   item = <<ITEM
 {
   "DomainName": {"S": "enzezhou"},
   "ID": {"S" : "id001"},
-  "Visitors": {"N" : "0"}
 }
 ITEM
 }
