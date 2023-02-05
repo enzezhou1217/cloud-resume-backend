@@ -301,15 +301,3 @@ resource "aws_dynamodb_table" "cloud-resume-table" {
   }
 }
 
-resource "aws_dynamodb_table_item" "cloud-resume" {
-  table_name = "cloud-resume-table"
-  hash_key   = "${aws_dynamodb_table.cloud-resume-table.hash_key}"
-  range_key    = "${aws_dynamodb_table.cloud-resume-table.range_key}"
-
-  item = <<ITEM
-{
-  "DomainName": {"S": "enzezhou"},
-  "ID": {"S" : "id001"}
-}
-ITEM
-}
