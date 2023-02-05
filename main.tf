@@ -300,4 +300,3 @@ resource "aws_dynamodb_table" "cloud-resume-table" {
     type = "S"
   }
 }
-
